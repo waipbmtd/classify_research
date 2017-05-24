@@ -34,7 +34,6 @@ if __name__ == "__main__":
         len(data_set), len(train), len(test)))
 
     separated = separate_by_class(train)
-    logging.info('Separated instances: {0}'.format(separated))
 
     gaussian_feature = dict()
     for key, value in separated.items():

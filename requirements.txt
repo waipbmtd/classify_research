@@ -1,0 +1,5 @@
+jieba
+pandas
+pandas-datareader
+scikit-learn
+pymongo
