@@ -67,7 +67,7 @@ def read_content_vector(content, weight_1000=True):
     return t_vector_freq
 
 
-def reade_data(data_dir: str):
+def reader_data(data_dir: str):
     """
     读取文件夹下所有文件特征量向量
     :param data_dir:
@@ -105,7 +105,7 @@ def sample2dataset(sample_dir: str, dataset_path: str):
     :return:
     """
     with open(dataset_path, 'w') as f:
-        sample_vectors = list(reade_data(sample_dir))
+        sample_vectors = list(reader_data(sample_dir))
         sample_vectors.insert(0, sample_vectors.pop(-1))
         f.writelines(sample_vectors)
 
