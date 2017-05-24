@@ -18,6 +18,9 @@ from src.models.naive_bayes import split_data_set, separate_by_class, \
 from src.settings import BASE_PATH, ALL_VECTOR
 from src.utils.jiebautil import jieba_split
 
+SAMPLE_DIR = os.path.join(BASE_PATH, 'data/use_info_data')
+DATASET_PATH = os.path.join(BASE_PATH, 'data/use_info_data/data.csv')
+
 
 def load_csv(filename):
     lines = csv.reader(open(filename, "rt"))
@@ -27,8 +30,7 @@ def load_csv(filename):
     return data_set
 
 
-def keyword_freq_vector(seq: list, keys: list, weight_1000: bool = False,
-                        correct=True):
+def keyword_freq_vector(seq: list, keys: list, weight_1000: bool = False):
     vector = [seq.count(k) for k in keys]
     if weight_1000:
         sum_vector = int(math.fsum(vector))
@@ -74,16 +76,14 @@ def reade_data(data_dir: str):
                     [str(i) for i in t_vector_freq + [category]]) + "\n"
 
 
-def write_sample():
+def sample2dataset(sample_dir: str, dataset_path: str):
     """
     样本收集
     :param category_list:
     :return:
     """
-    data_dir = os.path.join(BASE_PATH, 'data/use_info_data')
-    data_path = os.path.join(data_dir, "data.csv")
-    with open(data_path, 'w') as f:
-        f.writelines(reade_data(data_dir))
+    with open(dataset_path, 'w') as f:
+        f.writelines(reade_data(sample_dir))
 
 
 def regression_test():
@@ -91,7 +91,7 @@ def regression_test():
     基于样本分为样本和测试回归测试
     :return:
     """
-    filename = os.path.join(BASE_PATH, 'data/use_info_data/data.csv')
+    filename = DATASET_PATH
     data_set = load_csv(filename)
     logging.debug(
         'Loaded data file {0} with {1} rows'.format(filename, len(data_set)))
@@ -128,7 +128,7 @@ def article_test(f_path):
     :param f_path:
     :return:
     """
-    filename = os.path.join(BASE_PATH, 'data/use_info_data/data.csv')
+    filename = DATASET_PATH
     data_set = load_csv(filename)
     logging.debug(
         'Loaded data file {0} with {1} rows'.format(filename, len(data_set)))
@@ -148,7 +148,9 @@ def article_test(f_path):
         str(input_vector), probabilitie))
 
 
-if __name__ == "__main__":
-    write_sample()
-    # regression_test()
+def train():
+    sample2dataset(SAMPLE_DIR, DATASET_PATH)
+
+
+def classify():
     article_test(os.path.join(BASE_PATH, "data/use_info_data/test.txt"))

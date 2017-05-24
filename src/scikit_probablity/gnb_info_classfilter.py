@@ -19,8 +19,18 @@ from src.settings import ALL_VECTOR, CLASSES_NUM, MONGO_DATABASE, BASE_PATH, \
 from src.utils import datasetutil
 from src.utils.jiebautil import jieba_split, jieba_split_content
 
+SAMPLE_DIR = os.path.join(BASE_PATH, "data/use_info_data")
+DATASET_PATH = os.path.join(BASE_PATH, "data/use_info_data/data_set.csv")
+
 
 def keyword_freq_vector(seq: list, keys: list, weight_1000: bool = False):
+    """
+    获取关键字词频向量
+    :param seq:
+    :param keys:
+    :param weight_1000:
+    :return:
+    """
     vector = [seq.count(k) for k in keys]
     if weight_1000:
         sum_vector = int(math.fsum(vector))
@@ -110,20 +120,20 @@ def update_db_class(dataset_path: str):
 
     client = MongoClient(**MONGO_DATABASE)
     db = client.data
-    for it in db.news.find({"class": {"$exists": False}}):
+    for it in db.news.find({"machine_class": {"$exists": False}}):
         wc_content = it.get("content_text")
         wc_vector = read_content_vector(wc_content)
         num_class = gnb.predict([wc_vector])
         str_class = NUM_CLASS.get(int(num_class))
         logging.debug("class:{0}, content:{1}".format(str_class, wc_content))
 
-
-if __name__ == "__main__":
-    # extract vectors
-    # sample_dir = os.path.join(BASE_PATH, "data/use_info_data")
-    dataset_path = os.path.join(BASE_PATH, "data/use_info_data/data_set.csv")
-    # sample2dataset(sample_dir, dataset_path)
+        db.news.update_one({"_id": it.get("_id")},
+                           {"$set": {"machine_class": str_class}})
 
 
-    # update db class
-    update_db_class(dataset_path)
+def train():
+    sample2dataset(SAMPLE_DIR, DATASET_PATH)
+
+
+def classify():
+    update_db_class(DATASET_PATH)
