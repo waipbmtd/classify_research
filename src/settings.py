@@ -14,69 +14,11 @@ from logging.config import fileConfig
 BASE_PATH = os.path.normpath(os.path.join(__file__, "../../"))
 fileConfig(os.path.join(BASE_PATH, "etc/logger_config.ini"))
 
-# LOGGING_CONFIG = {
-#     'version': 1,
-#     'disable_existing_loggers': True,
-#     'loggers': {
-#         'root': {
-#             'handlers': ['info_file', 'console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'infologger': {
-#             'handlers': ['info_file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'errorlogger': {
-#             'handlers': ['error_file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         }
-#     },
-#
-#     'handlers': {
-#         'info_file': {
-#             'level': 'INFO',
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': os.path.join(BASE_PATH, 'logs/mylog_info.log'),
-#             'backupCount': 5,
-#             'maxBytes': 50 * 1024 * 1024,
-#             'formatter': 'verbose',
-#         },
-#         'error_file': {
-#             'level': 'ERROR',
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': os.path.join(BASE_PATH, 'logs/mylog_error.log'),
-#             'backupCount': 5,
-#             'maxBytes': 50 * 1024 * 1024,
-#             'formatter': 'verbose',
-#         },
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'verbose',
-#         },
-#     },
-#
-#     'formatters': {
-#         'verbose': {
-#             'format': '%(levelname)s %(asctime)s %(module)s %(pathname)s [%(lineno)d]: %(message)s'
-#         },
-#         'simple': {
-#             'format': '%(levelname)s %(message)s'
-#         },
-#     },
-#
-# }
-#
-# dictConfig(LOGGING_CONFIG)
-
 ALL_VECTOR = ['铝', '沪铝', '铝型材', '电解铝', '云铝股份', '铝制品', '铝质', '铝土', '铝厂', '铝合金', '铝箔', '铝棒', '铝业', '铝锭', '铝土矿', '铝板', '化铝', '铝制', '山铝业', '铝线', '氧化铝',
               '铜管', '纯铜', '阴极铜', '电解铜', '化铜', '铜精矿', '炼铜', '铜线', '铜业', '铜材', '铜合金', '废铜', '铜矿', '伦铜', '铜价', '氧化铜', '铜箔', '铜带', '铜厂', '粗铜', '沪铜', '硫酸铜', '炼铜厂', '铜板', '铜期货', '铜',
               '铅酸', '铅矿', '沪铅', '铅锌', '伦铅', '铅锌矿', '铅', '无铅',
               '锌板', '锌矿', '锌精矿', '铅锌', '锌粉', '氧化锌', '镀锌管', '锌锭', '锌', '镀锌', '镀锌板', '铅锌矿', '锌合金',
-              'png\nPVC', '\n\nPVC', 'PVC', 'PVC1709', '\nPVC', '塑料', "丙烯腈", "苯乙烯", "丁二烯", '热塑性', "橡胶",
+              'PVC', '塑料',
               '中铁', '钢铁股', '钢铁', '铁制', '高铁', '钢铁行业', '铁业', '铁轮', '钢铁业', '铁路', '炼铁', '铁板', '国际钢铁', '钢铁市场', '铁厂', '钢铁工业', '制铁', '铁路运输', '铁矿', '钢铁厂', '钢铁价格', '钢铁公司', '国铁', '钢铁工', '钢铁企业', '钢铁产业', '铁工', '铁', '铁矿石'
               ]
 CLASSES_NUM = OrderedDict(Others=0, Al=1, Cu=2, Fe=3, PVC=4, Pb=5, Zn=6)
