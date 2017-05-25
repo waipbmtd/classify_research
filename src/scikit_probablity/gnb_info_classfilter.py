@@ -10,6 +10,7 @@ import logging
 import math
 import os
 import random
+import traceback
 
 from pymongo import MongoClient
 from sklearn.naive_bayes import GaussianNB
@@ -21,6 +22,8 @@ from src.utils.jiebautil import jieba_split, jieba_split_content
 
 SAMPLE_DIR = os.path.join(BASE_PATH, "data/use_info_data")
 DATASET_PATH = os.path.join(BASE_PATH, "data/use_info_data/data_set.csv")
+
+class_dict = {"铜": [], "铝": [], "铅": [], "锌": [], "PVC": [], "铁": []}
 
 
 def keyword_freq_vector(seq: list, keys: list, weight_1000: bool = False):
@@ -51,6 +54,11 @@ def read_vector(f_path, weight_1000=True):
     t_seg_list = [x for x in jieba_split(f_path)]
     t_vector_freq = keyword_freq_vector(t_seg_list, ALL_VECTOR,
                                         weight_1000)
+    logging.debug(
+        "f_path:{0}, words: {1}".format(f_path, "/".join(t_seg_list)))
+
+    [[class_dict[k].append(x) for k in class_dict.keys() if k in x] for x in
+     t_seg_list]
     return t_vector_freq
 
 
@@ -91,10 +99,17 @@ def reader_data(data_dir: str):
             for t_file_name in files:
                 t_file_path = os.path.join(parent, t_file_name)
                 t_vector_freq = read_vector(t_file_path, True)
+                logging.debug(
+                    "file_name:{0} vector_freq:{1}, class_num:{2}, class_str:{3}".format(
+                        t_file_path, str(t_vector_freq), str(class_num),
+                        category))
                 yield ','.join(
                     [str(i) for i in t_vector_freq + [class_num]]) + "\n"
     yield ",".join(
         [str(sample_num), str(feature_num)] + list(CLASSES_NUM.keys())) + "\n"
+
+    [logging.debug("类别{0}: 词汇:{1}".format(k, set(v))) for k, v in
+     class_dict.items()]
 
 
 def sample2dataset(sample_dir: str, dataset_path: str):
@@ -116,24 +131,60 @@ def gaussian_model(dataset_path: str):
 
 
 def update_db_class(dataset_path: str):
-    gnb = gaussian_model(dataset_path)
+    iris = datasetutil.load_info(dataset_path)
+    gnb = GaussianNB().fit(iris.data, iris.target)
 
     client = MongoClient(**MONGO_DATABASE)
     db = client.data
     for it in db.news.find({"machine_class": {"$exists": False}}):
-        wc_content = it.get("content_text")
-        wc_vector = read_content_vector(wc_content)
-        num_class = gnb.predict([wc_vector])
-        str_class = NUM_CLASS.get(int(num_class))
-        logging.debug("class:{0}, content:{1}".format(str_class, wc_content))
+        try:
+            wc_content = it.get("content_text")
+            if wc_content:
+                wc_vector = read_content_vector(wc_content)
+                num_class = gnb.predict([wc_vector])
+                str_class = NUM_CLASS.get(int(num_class))
+            else:
+                str_class = NUM_CLASS.get(int(0))
+            logging.debug("class:{0}, content:{1}".format(str_class, wc_content))
 
-        db.news.update_one({"_id": it.get("_id")},
-                           {"$set": {"machine_class": str_class}})
+            db.news.update_one({"_id": it.get("_id")},
+                               {"$set": {"machine_class": str_class}})
+        except Exception as e:
+            logging.error("数据{0}解析异常:{1}".format(wc_content, traceback.format_exc()))
+            continue
+
+
+def regression_test(dataset_path: str):
+    """
+    回归测试
+    :return:
+    """
+    iris = datasetutil.load_info(dataset_path)
+    y_pred = GaussianNB().fit(iris.data, iris.target).predict(iris.data)
+    logging.debug(
+        "回归样本数:{0} 丢失数:{1}".format(iris.data.shape[0],
+                                   (iris.target != y_pred).sum()))
 
 
 def train():
+    """
+    训练
+    :return:
+    """
     sample2dataset(SAMPLE_DIR, DATASET_PATH)
 
 
 def classify():
+    """
+    分类
+    :return:
+    """
     update_db_class(DATASET_PATH)
+
+
+def regression():
+    """
+    回归
+    :return:
+    """
+    regression_test(DATASET_PATH)

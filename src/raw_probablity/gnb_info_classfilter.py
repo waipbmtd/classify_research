@@ -149,8 +149,24 @@ def article_test(f_path):
 
 
 def train():
+    """
+    训练
+    :return:
+    """
     sample2dataset(SAMPLE_DIR, DATASET_PATH)
 
 
 def classify():
+    """
+    分类
+    :return:
+    """
     article_test(os.path.join(BASE_PATH, "data/use_info_data/test.txt"))
+
+
+def regression():
+    """
+    回归
+    :return:
+    """
+    regression_test()
