@@ -7,10 +7,9 @@
 @author: Devin
 """
 import logging
+import re
 import traceback
 
-import re
-from gensim.summarization import summarize
 from pymongo import MongoClient
 from snownlp import SnowNLP
 
@@ -35,7 +34,7 @@ def tags():
             wc_tags = []
             if content:
                 wc_tags = jieba_extract_tags(content, top_k=10)
-            tags = [t for t in wc_tags if not re.match("[\d\.]+", t)]
+            tags = ",".join([t for t in wc_tags if not re.match("[\d\.]+", t)])
             logging.debug("content:{0}".format(content))
             logging.debug("tags:{0}".format(tags))
 
