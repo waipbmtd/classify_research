@@ -18,6 +18,5 @@ data/use_info_data/data.csv
 src/__pycache__/
 src/raw_probablity/__pycache__/
 src/scikit_probablity/__pycache__/
-src/start.py
 .DS_Store
 *.pyc
