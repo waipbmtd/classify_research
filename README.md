@@ -1,7 +1,9 @@
-文本分类算法实验
+# 环境都是python3
+
+## 文本分类算法实验
 
 
-使用方法:
+### 使用方法:
 
     usage: start.py [-h] -a [{classify,extract}] [-c {raw,scikit}] [-als {gnb}]
                 [-cd [{train,classify,regression} [{train,classify,regression} ...]]]
