@@ -1,13 +1,8 @@
-log/
-logs/
 *.log
 *.idea
 *migrations/*.py
 *.DS_Store
-00*.py
 *.py[cod]
-iotapi_nginx.conf
-iotapi_uwsgi.ini
 supervisord.conf
 .commit_id
 !fabfile/conf/*.py

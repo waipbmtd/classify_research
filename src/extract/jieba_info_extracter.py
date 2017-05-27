@@ -24,7 +24,8 @@ def tags():
     """
     client = MongoClient(**MONGO_DATABASE)
     db = client.data
-    for it in db.news.find({"machine_tags": {"$exists": False}}):
+    for it in db.news.find({"$or": [{"machine_tags": {"$exists": False}},
+                                    {"machine_tags": {"$regex": "^ *$"}}]}):
         try:
             title = it.get("title") if it.get("title") else ""
             title = "".join(title) if type(title) == list else title
@@ -53,7 +54,8 @@ def summary():
     """
     client = MongoClient(**MONGO_DATABASE)
     db = client.data
-    for it in db.news.find({"machine_summary": {"$exists": False}}):
+    for it in db.news.find({"$or": [{"machine_summary": {"$exists": False}},
+                                    {"machine_summary": {"$regex": "^ *$"}}]}):
         content = it.get("content_text")
         title = it.get("title")
         try:

@@ -137,11 +137,13 @@ def update_db_class(dataset_path: str):
 
     client = MongoClient(**MONGO_DATABASE)
     db = client.data
-    for it in db.news.find({"machine_class": {"$exists": False}}):
+    for it in db.news.find({"$or": [{"machine_class": {"$exists": False}},
+                                    {"machine_class": {"$regex": "^ *$"}}]}):
         try:
             title = it.get("title") if it.get("title") else ""
             title = "".join(title) if type(title) == list else title
-            wc_content = it.get("content_text") if it.get("content_text") else ""
+            wc_content = it.get("content_text") if it.get(
+                "content_text") else ""
             content = title + wc_content
             if content:
                 wc_vector = read_content_vector(content)
@@ -155,7 +157,8 @@ def update_db_class(dataset_path: str):
             db.news.update_one({"_id": it.get("_id")},
                                {"$set": {"machine_class": str_class}})
         except Exception as e:
-            logging.error("数据{0}解析异常:{1}".format(content, traceback.format_exc()))
+            logging.error(
+                "数据{0}解析异常:{1}".format(content, traceback.format_exc()))
             continue
 
 
@@ -168,7 +171,7 @@ def regression_test(dataset_path: str):
     y_pred = GaussianNB().fit(iris.data, iris.target).predict(iris.data)
     logging.debug(
         "回归样本数:{0} 没有命中数:{1}".format(iris.data.shape[0],
-                                   (iris.target != y_pred).sum()))
+                                     (iris.target != y_pred).sum()))
 
 
 def train():
