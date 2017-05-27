@@ -44,7 +44,6 @@ class USE_TFIDF(TFIDF):
             words = self.tokenizer.cut(sentence, cut_all=False, HMM=False)
         freq = {}
         for w in words:
-            logging.debug("分词:{0}".format(w))
             if allowPOS:
                 if w.flag not in allowPOS:
                     continue

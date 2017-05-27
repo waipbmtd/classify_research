@@ -3,3 +3,5 @@ pandas
 pandas-datareader
 scikit-learn
 pymongo
+gensim
+snownlp

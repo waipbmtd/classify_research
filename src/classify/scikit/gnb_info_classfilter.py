@@ -72,6 +72,7 @@ def read_content_vector(content, weight_1000=True):
     t_seg_list = [x for x in jieba_split_content(content)]
     t_vector_freq = keyword_freq_vector(t_seg_list, ALL_VECTOR,
                                         weight_1000)
+    logging.debug("content term: {0}".format("/".join(t_seg_list)))
     return t_vector_freq
 
 
@@ -149,7 +150,7 @@ def update_db_class(dataset_path: str):
             else:
                 wc_vector = []
                 str_class = NUM_CLASS.get(int(0))
-            logging.debug("class:{0}, content:{1}, vector:{2}".format(str_class, content, wc_vector))
+            logging.debug("class:{0}, vector:{1}".format(str_class, wc_vector))
 
             db.news.update_one({"_id": it.get("_id")},
                                {"$set": {"machine_class": str_class}})
