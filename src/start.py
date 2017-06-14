@@ -35,7 +35,7 @@ def parse_args():
                         nargs='*', default=["train", "classify"],
                         help='机器分类的具体操作')
 
-    parser.add_argument("-e", '--extracter', choices=["jieba"],
+    parser.add_argument("-e", '--extracter', choices=["jieba", 'raw'],
                         default="jieba", help="提取工具选择")
     parser.add_argument("-ed", '--extract_do', choices=["tags", "summary"],
                         default=["tags", "resume"], nargs='*',
@@ -55,9 +55,7 @@ if __name__ == "__main__":
         does = args.class_do
         logging.debug("执行参数:classify %s %s %s", classifier, algorithms,
                       does)
-        cf = import_module(
-            "src.classify.%s.%s_info_classfilter" % (
-                classifier, algorithms))
+        cf = import_module("src.classify.%s.%s_info_classfilter" % (classifier, algorithms))
         [exec("cf.%s()" % s) for s in does]
     if "extract" in actions:
         extracter = args.extracter
