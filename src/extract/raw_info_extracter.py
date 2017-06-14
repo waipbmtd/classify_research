@@ -7,8 +7,9 @@
 @author: Devin
 """
 import logging
-import re
+import json
 import traceback
+from ipdb import set_trace
 
 from pymongo import MongoClient
 
@@ -35,8 +36,8 @@ def tags():
     logging.info("raw提取关键字")
     client = MongoClient(**MONGO_DATABASE)
     db = client.data
-    for it in db.news.find({"$or": [{"human_tags": {"$exists": False}},
-                                    {"human_tags": {"$regex": "^ *$"}}]}):
+    for it in db.news.find({"$or": [{"manual_tags": {"$exists": False}},
+                                    {"manual_tags": {"$size": 0}}]}):
         try:
             title = it.get("title") if it.get("title") else ""
             title = "".join(title) if type(title) == list else title
@@ -50,11 +51,10 @@ def tags():
                 logging.info("关键字字典为空,忽略!")
                 continue
             logging.info("关键字为:%s" % wc_tags)
-            tags = ",".join([t for t in wc_tags if not re.match("[\d\.]+", t)])
+            tags = list(wc_tags.keys())
             logging.debug("raw 提取关键字:{0}".format(tags))
-
             db.news.update_one({"_id": it.get("_id")},
-                               {"$set": {"human_tags": tags}})
+                               {"$set": {"manual_tags": tags}})
         except Exception as e:
             logging.error(
                 "数据{0}raw提取关键词异常:{1}".format(content, traceback.format_exc()))
