@@ -52,7 +52,7 @@ def run(*args):
 def main():
     r_client = redis.from_url(REDIS_URL)
     ps = r_client.pubsub()
-    ps.subscribe(spider_test=run)
+    ps.subscribe(spider=run)
     [x for x in ps.listen()]
 
 if __name__ == "__main__":
