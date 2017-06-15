@@ -53,4 +53,7 @@ RAW_TAG_CORRESPOND_WORDS = {"库存": ["库存", "仓单", "进出口", "进口"
                             "宏观": ['李克强', '特朗普'],
                             }
 
+
+REDIS_URL = "redis://:test123@139.196.48.250:6379/1"
+
 logging.info("读取settings文件完成")

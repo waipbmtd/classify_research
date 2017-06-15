@@ -5,3 +5,5 @@ scikit-learn
 pymongo
 gensim
 snownlp
+ipdb
+redis
