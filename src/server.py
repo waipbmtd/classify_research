@@ -46,7 +46,7 @@ def run(*args):
     logging.info("接收到爬虫消息:%s" % args)
     run_classify()
     run_extract()
-    logging.info("执行完到爬虫消息:%s" % args)
+    logging.info("执行完爬虫消息:%s" % args)
 
 
 def main():
