@@ -50,7 +50,8 @@ def run(*args):
 
 
 def main():
-    r_client = redis.from_url(REDIS_URL)
+    r_client = redis.from_url(REDIS_URL, socket_keepalive=True,
+                              retry_on_timeout=True)
     ps = r_client.pubsub()
     ps.subscribe(spider=run)
     [x for x in ps.listen()]
