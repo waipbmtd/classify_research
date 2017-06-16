@@ -31,7 +31,7 @@ def tags():
             title = "".join(title) if type(title) == list else title
             wc_content = it.get("content_text") if it.get(
                 "content_text") else ""
-            content = title + wc_content
+            content = title.strip() + wc_content.strip()
             wc_tags = []
             if content:
                 wc_tags = jieba_extract_tags(content, top_k=10)
@@ -56,8 +56,8 @@ def summary():
     db = client.data
     for it in db.news.find({"$or": [{"machine_summary": {"$exists": False}},
                                     {"machine_summary": {"$regex": "^ *$"}}]}):
-        content = it.get("content_text")
-        title = it.get("title")
+        content = it.get("content_text").strip()
+        title = it.get("title").strip()
         try:
             if content is not None and content != "":
                 content = content.strip()
