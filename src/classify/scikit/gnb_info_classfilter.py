@@ -144,7 +144,7 @@ def update_db_class(dataset_path: str):
             title = "".join(title) if type(title) == list else title
             wc_content = it.get("content_text") if it.get(
                 "content_text") else ""
-            content = title + wc_content
+            content = title.strip() + wc_content.strip()
             if content:
                 wc_vector = read_content_vector(content)
                 num_class = gnb.predict([wc_vector])
