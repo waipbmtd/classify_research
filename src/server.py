@@ -1,60 +1,78 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-@date: 2017-06-15
-
-@author: Devin
-"""
-import os
-import sys
-import redis
+import time
+import traceback
 import logging
 
-sys.path.append(os.path.abspath(os.path.join(__file__, "../../")))
-os.chdir(os.path.abspath(os.path.join(__file__, "../")))
+import pika
 
-from src.settings import REDIS_URL
-from src.classify.scikit import gnb_info_classfilter
-from src.extract import jieba_info_extracter, raw_info_extracter
+from settings import mq
+from hanlder import run
 
 
-def run_classify():
-    """
-    启动分类
-    :return:
-    """
-    gnb_info_classfilter.classify()
+class InfoServer(object):
+    _connection = None
+    _channel = None
+    _conf = mq
+
+    def __init__(self):
+        self.handler = run
+
+    def on_message(self, channel, method_frame, header_frame, body):
+        logging.info('message arrive: %s' % body)
+        try:
+            self.handler(body)
+        except Exception as e:
+            logging.error("处理消息获得异常:%s", traceback.format_exc())
+        finally:
+            channel.basic_ack(delivery_tag=method_frame.delivery_tag)
 
 
-def run_extract():
-    """
-    启动提取
-    :return:
-    """
-    jieba_info_extracter.tags()
-    jieba_info_extracter.summary()
-    raw_info_extracter.tags()
+class SyncInfoServer(InfoServer):
+    @property
+    def channel(self):
+        if not self._channel:
+            self._channel = self.connection.channel()
+            self._channel.exchange_declare(self._conf.get('exchange'),
+                                           type=self._conf.get(
+                                               'exchange_type'))
+            self._channel.queue_declare(self._conf.get('queue'), exclusive=True)
+            self._channel.queue_bind(exchange=self._conf.get('exchange'),
+                                     routing_key=self._conf.get('routing_key'),
+                                     queue=self._conf.get('queue'))
+        return self._channel
 
+    @property
+    def connection(self):
+        if not self._connection:
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(self._conf.get('host')))
+            self._connection = connection
+        return self._connection
 
-def run(*args):
-    """
-
-    :param kwargs:
-    :return:
-    """
-    logging.info("接收到爬虫消息:%s" % args)
-    run_classify()
-    run_extract()
-    logging.info("执行完爬虫消息:%s" % args)
-
-
-def main():
-    r_client = redis.from_url(REDIS_URL, socket_keepalive=True,
-                              retry_on_timeout=True)
-    ps = r_client.pubsub()
-    ps.subscribe(spider=run)
-    [x for x in ps.listen()]
-
-if __name__ == "__main__":
-    main()
+    def run(self):
+        logging.debug('sync consumer...')
+        while True:
+            try:
+                logging.info('start consuming...')
+                self.channel.basic_consume(self.on_message,
+                                           self._conf.get('queue'))
+                self.channel.start_consuming()
+            except pika.exceptions.ConnectionClosed:
+                logging.error('lost connection...')
+                logging.error('reconnect 5 seconds later...')
+                self._channel = None
+                self._connection = None
+                time.sleep(5)
+            except KeyboardInterrupt:
+                logging.error('stop consuming...')
+                self.channel.stop_consuming()
+                self.channel.close()
+                self.connection.close()
+                break
+            except Exception as e:
+                logging.error(str(e))
+                time.sleep(1)
+            finally:
+                pass

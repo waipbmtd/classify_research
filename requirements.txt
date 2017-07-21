@@ -6,4 +6,4 @@ pymongo
 gensim
 snownlp
 ipdb
-redis
+pika

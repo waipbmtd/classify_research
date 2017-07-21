@@ -53,7 +53,12 @@ RAW_TAG_CORRESPOND_WORDS = {"库存": ["库存", "仓单", "进出口", "进口"
                             "宏观": ['李克强', '特朗普'],
                             }
 
-
-REDIS_URL = "redis://:test123@139.196.48.250:6379/2"
+REDIS_URL = "redis://:test123@139.196.48.250:6379/1"
 
 logging.info("读取settings文件完成")
+
+mq = {'host': '172.16.88.140',
+      'exchange': 'useonline.alpha.analysis',
+      'exchange_type': 'topic',
+      'routing_key': 'news',
+      'queue': 'queue.info_spider_done'}
